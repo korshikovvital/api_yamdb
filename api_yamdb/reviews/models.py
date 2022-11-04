@@ -1,21 +1,35 @@
-from django.contrib.auth.models import AbstractUser
+# from django.contrib.auth.models import AbstractUser
 from django.db import models
+import uuid
+
+
+from django.contrib.auth.models import AbstractUser
+
+from django.db import models
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return str(refresh.access_token)
 
 
 class User(AbstractUser):
-    USER = 'usr'
-    MODERATOR = 'mdr'
-    ADMIN = 'adm'
-    ROLES = [
-        (USER, 'user'),
-        (MODERATOR, 'moderator'),
-        (ADMIN, 'admin'),
-    ]
+    # прописываем поля отличные от AbstractUser
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=True)
     bio = models.TextField(blank=True)
+    confirmation_code = models.UUIDField(default=uuid.uuid4, editable=False)
+    ROLES = [
+        ('usr', 'user'),
+        ('mdr', 'moderator'),
+        ('adm', 'admin'),
+    ]
+    # переделать. usr
     role = models.CharField(
         max_length=3,
         choices=ROLES,
-        default=USER,
+        default='usr',
     )
 
 

@@ -9,6 +9,7 @@ from django.db import models
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return str(refresh.access_token)
@@ -19,17 +20,18 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=150, blank=True)
     bio = models.TextField(blank=True)
+    # используем стандартное поле UUID для отправки пользователям
+    # в качестве кода подтверждения. создается автоматически
     confirmation_code = models.UUIDField(default=uuid.uuid4, editable=False)
     ROLES = [
-        ('usr', 'user'),
-        ('mdr', 'moderator'),
-        ('adm', 'admin'),
+        ('user', 'usr'),     # разобраться, не понимаю, почему именно так
+        ('moderator', 'mdr'),
+        ('admin', 'adm'),
     ]
-    # переделать. usr
     role = models.CharField(
-        max_length=3,
+        max_length=10,
         choices=ROLES,
-        default='usr',
+        default='user',
     )
 
 

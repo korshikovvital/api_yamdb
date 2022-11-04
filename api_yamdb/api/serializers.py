@@ -1,12 +1,19 @@
-from reviews.models import User 
 from rest_framework import serializers
+from reviews.models import User
 
 
 class FullUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователей для админа, все поля."""
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -28,11 +35,20 @@ class PatchUserSerializer(serializers.ModelSerializer):
     """Сериализатор для самостоятельного редактирования пользователем."""
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio','role')
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
         read_only_fields = ('role',)
 
 
 class JWTSerializer(serializers.Serializer):
     """Сериализатор для получения JWT."""
     username = serializers.CharField(max_length=256)
-    confirmation_code = serializers.UUIDField()
+    confirmation_code = serializers.CharField(max_length=256)
+    # не проходит тест с кривым кодом подтверждения
+    # confirmation_code = serializers.UUIDField()

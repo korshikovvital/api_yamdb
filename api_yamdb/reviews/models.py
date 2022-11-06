@@ -20,32 +20,63 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(verbose_name='Название', max_length=256)
+    slug = models.SlugField(verbose_name='Slug',
+                            max_length=50,
+                            unique=True)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(verbose_name='Название', max_length=256)
+    slug = models.SlugField(verbose_name='Slug',
+                            max_length=50,
+                            unique=True)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=200)
-    year = models.IntegerField()
+    name = models.TextField(verbose_name='Название')
+    year = models.IntegerField(verbose_name='Год выхода')
     rating = models.IntegerField(default=None, blank=True, null=True)
-    description = models.TextField(blank=True)
+    description = models.TextField(verbose_name='Описание', blank=True)
     category = models.ForeignKey(
         Category,
+        verbose_name='Категория',
         on_delete=models.SET_NULL,
         related_name='titles',
         null=True
     )
-    genre = models.ManyToManyField(Genre, through='GenreTitle')
+    genre = models.ManyToManyField(Genre,
+                                   verbose_name='Жанры',
+                                   through='GenreTitle')
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+
+    def __str__(self):
+        return self.name
 
 
 class GenreTitle(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
-    tilte = models.ForeignKey(Title, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
 
 class Review(models.Model):

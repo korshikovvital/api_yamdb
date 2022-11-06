@@ -26,7 +26,9 @@ class GenreViewSet(ListCreateDestroyModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.select_related('category').prefetch_related(
+        'genre'
+    ).all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 

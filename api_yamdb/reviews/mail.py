@@ -1,5 +1,5 @@
-import smtplib
 from email.message import EmailMessage  # для красоты, библиотека стандартная
+import smtplib
 
 
 HOST = 'smtp.mail.ru'

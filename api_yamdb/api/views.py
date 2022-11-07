@@ -9,13 +9,13 @@ from .serializers import FullUserSerializer, JWTSerializer, \
     CreateUserSerializer, PatchUserSerializer, CreateUserByAdminSerializer
 
 from .permissions import IsAdmin    # IsModer, OwnerOrReadOnly
-#  from reviews.mail import send_letter
+#  from reviews.mail import send_letter     # не проходит тест
 
 
 @api_view(['POST'])
 def create_user(request):
     """Создаем пользователя по запросу с username и email.
-    Возможны 2 варианта: пользователь создается сам и впервые,
+    Возможны 2 варианта: пользователь создается сам впервые,
     и пользователь уже создан админом, необходимо получить JWT."""
     # проверяем на существование записи в БД по емэйл
     if User.objects.filter(email=request.data.get('email')).exists():

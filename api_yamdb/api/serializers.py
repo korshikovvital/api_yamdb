@@ -50,5 +50,3 @@ class JWTSerializer(serializers.Serializer):
     """Сериализатор для получения JWT."""
     username = serializers.CharField(max_length=256)
     confirmation_code = serializers.CharField(max_length=256)
-    # не проходит тест с кривым кодом подтверждения
-    # confirmation_code = serializers.UUIDField()

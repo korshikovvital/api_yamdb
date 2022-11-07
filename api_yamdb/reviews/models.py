@@ -1,7 +1,6 @@
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 import uuid
 
@@ -19,15 +18,18 @@ class User(AbstractUser):
     # используем стандартное поле UUID для отправки пользователям
     # в качестве кода подтверждения. создается автоматически
     confirmation_code = models.UUIDField(default=uuid.uuid4, editable=False)
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
     ROLES = [
-        ('user', 'usr'),     # разобраться, не понимаю, почему именно так
-        ('moderator', 'mdr'),
-        ('admin', 'adm'),
+        (USER, 'user'),
+        (MODERATOR, 'moderator'),
+        (ADMIN, 'admin'),
     ]
     role = models.CharField(
         max_length=10,
         choices=ROLES,
-        default='user',
+        default=USER,
     )
 
 

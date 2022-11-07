@@ -13,10 +13,12 @@ PASSWORD = 'AeBibkgmY5SFdd16SL1E'
 def send_letter(addressee, text, username=None):
     """Функция для отправки писем. На вход принимает емайл-адресата и текст
     письма. Поле username не обязательно, для красоты."""
-    pattern = \
+    pattern = (
         "Отправьте на эндпоинт /api/v1/auth/token/ следующий POST-запрос:\n"
-    full_text = \
+    )
+    full_text = (
         f'{pattern}{{"username": "{username}", "confirmation_code": "{text}"}}'
+    )
     msg = EmailMessage()
     msg.set_content(full_text)
     msg['Subject'] = 'Регистрация на сервисе YAMDB'

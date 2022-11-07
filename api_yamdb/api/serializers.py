@@ -23,7 +23,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
 
-# не нравится
 class CreateUserByAdminSerializer(serializers.Serializer):
     """Сериализатор получения пользователем кода подтверждения,
     Если его ранее создал администратор. Запись в БД не требуется."""

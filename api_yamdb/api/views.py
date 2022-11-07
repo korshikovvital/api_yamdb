@@ -21,7 +21,7 @@ def create_user(request):
     if User.objects.filter(email=request.data.get('email')).exists():
         user = User.objects.get(email=request.data.get('email'))
         # если username из запроса соответсвует записи в базе по емэйл,
-        # выбираем сериалайзер без привязки к моделе User.
+        # выбираем сериалайзер без привязки к модели User.
         # то есть ничего записывать в БД не будем
         if user.username == request.data.get('username'):
             serializer = CreateUserByAdminSerializer(data=request.data)
@@ -44,18 +44,16 @@ def create_user(request):
         # и, при необходимости, записываем в БД
         if isinstance(serializer, CreateUserSerializer):
             serializer.save()
-        # переопределяем Юзера
         user = User.objects.get(email=serializer.data['email'])
-        # получаем код подтверждения и приводим к строке
         conf = str(user.confirmation_code)
 
-        # для тестов. Нормальный вариант с отравкой письма ниже
+        # для тестов. Вариант с отравкой письма ниже
         send_mail(
             'Registration on the YAMDB',  # тема
             conf,   # текст
             'YAMDB',  # от кого
             [user.email],  # кому
-            fail_silently=False,  # «молчать ли об ошибках»)
+            fail_silently=False,  # «молчать ли об ошибках»
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -88,7 +86,7 @@ def send_jwt(request):
             )
         user = User.objects.get(username=serializer.data['username'])
         # проверка кода
-        if str(serializer.data['confirmation_code']) == str(
+        if serializer.data['confirmation_code'] == str(
             user.confirmation_code
         ):
             return Response(

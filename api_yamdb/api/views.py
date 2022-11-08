@@ -1,14 +1,20 @@
-from django.core.mail import send_mail  # для тестов
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from reviews.models import get_tokens_for_user, User
-from .serializers import FullUserSerializer, JWTSerializer, \
-    CreateUserSerializer, PatchUserSerializer, CreateUserByAdminSerializer
+from reviews.models import get_tokens_for_user, Category, Genre, Title, User
 
-from .permissions import IsAdmin    # IsModer, OwnerOrReadOnly
+from .filters import TitleFilter
+from .permissions import IsAdmin, IsModer, OwnerOrReadOnly
+from .serializers import (CategorySerializer, CreateUserByAdminSerializer,
+                          CreateUserSerializer, FullUserSerializer,
+                          GenreSerializer, JWTSerializer, PatchUserSerializer,
+                          TitleGetSerializer, TitlePostSerializer)
+
+from .viewsets import ListCreateDestroyModelViewSet
 
 
 @api_view(['POST'])
@@ -101,6 +107,35 @@ def self_patch_user(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     serializer = FullUserSerializer(user)
     return Response(serializer.data)
+
+
+class CategoryViewSet(ListCreateDestroyModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class GenreViewSet(ListCreateDestroyModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.select_related('category').prefetch_related(
+        'genre'
+    ).all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('retrieve', 'list'):
+            return TitleGetSerializer
+        return TitlePostSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):

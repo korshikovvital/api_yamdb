@@ -1,5 +1,25 @@
 from rest_framework import serializers
-from reviews.models import User
+from reviews.models import Category, Genre, Title, User
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
+
+class CreateUserByAdminSerializer(serializers.Serializer):
+    """Сериализатор получения пользователем кода подтверждения,
+    Если его ранее создал администратор. Запись в БД не требуется."""
+    username = serializers.CharField(max_length=256)
+    email = serializers.EmailField()
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    """Сериализатор для самостоятельного создания пользователя."""
+    class Meta:
+        model = User
+        fields = ('username', 'email')
 
 
 class FullUserSerializer(serializers.ModelSerializer):
@@ -16,18 +36,16 @@ class FullUserSerializer(serializers.ModelSerializer):
         )
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
-    """Сериализатор для самостоятельного создания пользователя."""
+class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ('username', 'email')
+        model = Genre
+        fields = ('name', 'slug')
 
 
-class CreateUserByAdminSerializer(serializers.Serializer):
-    """Сериализатор получения пользователем кода подтверждения,
-    Если его ранее создал администратор. Запись в БД не требуется."""
+class JWTSerializer(serializers.Serializer):
+    """Сериализатор для получения JWT."""
     username = serializers.CharField(max_length=256)
-    email = serializers.EmailField()
+    confirmation_code = serializers.CharField(max_length=256)
 
 
 class PatchUserSerializer(serializers.ModelSerializer):
@@ -45,7 +63,26 @@ class PatchUserSerializer(serializers.ModelSerializer):
         read_only_fields = ('role',)
 
 
-class JWTSerializer(serializers.Serializer):
-    """Сериализатор для получения JWT."""
-    username = serializers.CharField(max_length=256)
-    confirmation_code = serializers.CharField(max_length=256)
+class TitleGetSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True, many=True)
+    category = CategorySerializer(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+
+class TitlePostSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        fields = '__all__'

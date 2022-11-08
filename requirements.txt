@@ -1,5 +1,6 @@
 requests~=2.26
 django~=2.2
+django-filter~=21.1
 djangorestframework~=3.12
 djangorestframework-simplejwt~=5.2
 PyJWT~=2.1

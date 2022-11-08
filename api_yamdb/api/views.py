@@ -1,7 +1,7 @@
-from .serializers import ReviewSerializer, CommentsSerializer
-from reviews.models import Review, Title, Comments
-from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
+from reviews.models import Review, Title
+from .serializers import ReviewSerializer, CommentsSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

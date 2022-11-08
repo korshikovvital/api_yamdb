@@ -1,19 +1,33 @@
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
+import uuid
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return str(refresh.access_token)
 
 
 class User(AbstractUser):
-    USER = 'usr'
-    MODERATOR = 'mdr'
-    ADMIN = 'adm'
+    # прописываем поля отличные от AbstractUser
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=True)
+    bio = models.TextField(blank=True)
+    # используем стандартное поле UUID для отправки пользователям
+    # в качестве кода подтверждения. создается автоматически
+    confirmation_code = models.UUIDField(default=uuid.uuid4, editable=False)
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
     ROLES = [
         (USER, 'user'),
         (MODERATOR, 'moderator'),
         (ADMIN, 'admin'),
     ]
-    bio = models.TextField(blank=True)
     role = models.CharField(
-        max_length=3,
+        max_length=10,
         choices=ROLES,
         default=USER,
     )

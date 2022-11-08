@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .serializers import ReviewSerializer, CommentsSerializer
 from reviews.models import Review, Title, Comments
 from rest_framework import viewsets

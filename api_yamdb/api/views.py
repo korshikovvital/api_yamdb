@@ -9,7 +9,6 @@ from .serializers import FullUserSerializer, JWTSerializer, \
     CreateUserSerializer, PatchUserSerializer, CreateUserByAdminSerializer
 
 from .permissions import IsAdmin    # IsModer, OwnerOrReadOnly
-#  from reviews.mail import send_letter     # не проходит тест
 
 
 @api_view(['POST'])
@@ -47,7 +46,7 @@ def create_user(request):
         user = User.objects.get(email=serializer.data['email'])
         conf = str(user.confirmation_code)
 
-        # для тестов. Вариант с отравкой письма ниже
+        # отправка письма
         send_mail(
             'Registration on the YAMDB',  # тема
             conf,   # текст
@@ -56,19 +55,6 @@ def create_user(request):
             fail_silently=False,  # «молчать ли об ошибках»
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-        # try:
-        #     send_letter(user.email, str(conf), user.username)
-        #     return Response(
-        #         f'Письмо с кодом подверждения отправлено на {user.email}',
-        #         status=status.HTTP_200_OK
-        #     )
-        # except Exception:
-        #     return Response(
-        #         'Ошибка отправки письма, проверьте адрес почты',
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
-
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

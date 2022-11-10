@@ -5,12 +5,11 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from reviews.models import (
-    get_tokens_for_user, Category,
-    Genre, Title, User,Review)
-
 from .filters import TitleFilter
 from .permissions import IsAdmin, IsModer, OwnerOrReadOnly
+from reviews.models import (
+    get_tokens_for_user, Category,
+    Genre, Title, User, Review)
 from .serializers import (CategorySerializer, CreateUserByAdminSerializer,
                           CreateUserSerializer, FullUserSerializer,
                           GenreSerializer, JWTSerializer, PatchUserSerializer,
@@ -58,7 +57,7 @@ def create_user(request):
         # отправка письма
         send_mail(
             'Registration on the YAMDB',  # тема
-            conf,   # текст
+            conf,  # текст
             'YAMDB',  # от кого
             [user.email],  # кому
             fail_silently=False,  # «молчать ли об ошибках»
@@ -73,7 +72,7 @@ def send_jwt(request):
     serializer = JWTSerializer(data=request.data)
     if serializer.is_valid():
         if not User.objects.filter(
-            username=serializer.data.get('username')
+                username=serializer.data.get('username')
         ).exists():
             return Response(
                 'Пользователь не найден',
@@ -82,7 +81,7 @@ def send_jwt(request):
         user = User.objects.get(username=serializer.data['username'])
         # проверка кода
         if serializer.data['confirmation_code'] == str(
-            user.confirmation_code
+                user.confirmation_code
         ):
             return Response(
                 f'token: {get_tokens_for_user(user)}',

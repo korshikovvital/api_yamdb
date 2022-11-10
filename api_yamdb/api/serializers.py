@@ -1,5 +1,8 @@
+from reviews.models import (Category, Genre,
+                            Title, User,
+                            Review, Comments)
+
 from rest_framework import serializers
-from reviews.models import Category, Genre, Title, User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -17,6 +20,7 @@ class CreateUserByAdminSerializer(serializers.Serializer):
 
 class CreateUserSerializer(serializers.ModelSerializer):
     """Сериализатор для самостоятельного создания пользователя."""
+
     class Meta:
         model = User
         fields = ('username', 'email')
@@ -24,6 +28,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 class FullUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователей для админа, все поля."""
+
     class Meta:
         model = User
         fields = (
@@ -50,6 +55,7 @@ class JWTSerializer(serializers.Serializer):
 
 class PatchUserSerializer(serializers.ModelSerializer):
     """Сериализатор для самостоятельного редактирования пользователем."""
+
     class Meta:
         model = User
         fields = (
@@ -86,3 +92,23 @@ class TitlePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True
+    )
+
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+
+
+class CommentsSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True
+    )
+
+    class Meta:
+        model = Comments
+        fields = ('id', 'text', 'author', 'pub_date')

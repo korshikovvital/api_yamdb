@@ -5,14 +5,16 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from reviews.models import get_tokens_for_user, Category, Genre, Title, User
-
 from .filters import TitleFilter
 from .permissions import IsAdmin, IsModer, OwnerOrReadOnly
+from reviews.models import (
+    get_tokens_for_user, Category,
+    Genre, Title, User, Review)
 from .serializers import (CategorySerializer, CreateUserByAdminSerializer,
                           CreateUserSerializer, FullUserSerializer,
                           GenreSerializer, JWTSerializer, PatchUserSerializer,
-                          TitleGetSerializer, TitlePostSerializer)
+                          TitleGetSerializer, TitlePostSerializer,
+                          ReviewSerializer, CommentsSerializer)
 
 from .viewsets import ListCreateDestroyModelViewSet
 
@@ -55,7 +57,7 @@ def create_user(request):
         # отправка письма
         send_mail(
             'Registration on the YAMDB',  # тема
-            conf,   # текст
+            conf,  # текст
             'YAMDB',  # от кого
             [user.email],  # кому
             fail_silently=False,  # «молчать ли об ошибках»
@@ -70,7 +72,7 @@ def send_jwt(request):
     serializer = JWTSerializer(data=request.data)
     if serializer.is_valid():
         if not User.objects.filter(
-            username=serializer.data.get('username')
+                username=serializer.data.get('username')
         ).exists():
             return Response(
                 'Пользователь не найден',
@@ -79,7 +81,7 @@ def send_jwt(request):
         user = User.objects.get(username=serializer.data['username'])
         # проверка кода
         if serializer.data['confirmation_code'] == str(
-            user.confirmation_code
+                user.confirmation_code
         ):
             return Response(
                 f'token: {get_tokens_for_user(user)}',
@@ -146,3 +148,29 @@ class UserViewSet(viewsets.ModelViewSet):
     # поле для поиска отдельных экземпляров модели, по умолчанию "pk",
     # но нам нужно, чтобы в урлах был username /users/{username}/
     lookup_field = 'username'
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        new_queryset = get_object_or_404(Title, id=title_id)
+        return new_queryset.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title_id=title)
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentsSerializer
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        return review.coments.all()
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review_id=review)

@@ -1,21 +1,20 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from reviews.models import (Category, Genre, Review, Title, User,
+                            get_tokens_for_user)
+
 from .filters import TitleFilter
 from .permissions import IsAdmin, IsModer, OwnerOrReadOnly
-from reviews.models import (
-    get_tokens_for_user, Category,
-    Genre, Title, User, Review)
-from .serializers import (CategorySerializer, CreateUserByAdminSerializer,
-                          CreateUserSerializer, FullUserSerializer,
-                          GenreSerializer, JWTSerializer, PatchUserSerializer,
-                          TitleGetSerializer, TitlePostSerializer,
-                          ReviewSerializer, CommentsSerializer)
-
+from .serializers import (CategorySerializer, CommentSerializer,
+                          CreateUserByAdminSerializer, CreateUserSerializer,
+                          FullUserSerializer, GenreSerializer, JWTSerializer,
+                          PatchUserSerializer, ReviewSerializer,
+                          TitleGetSerializer, TitlePostSerializer)
 from .viewsets import ListCreateDestroyModelViewSet
 
 
@@ -72,7 +71,7 @@ def send_jwt(request):
     serializer = JWTSerializer(data=request.data)
     if serializer.is_valid():
         if not User.objects.filter(
-                username=serializer.data.get('username')
+            username=serializer.data.get('username')
         ).exists():
             return Response(
                 'Пользователь не найден',
@@ -81,7 +80,7 @@ def send_jwt(request):
         user = User.objects.get(username=serializer.data['username'])
         # проверка кода
         if serializer.data['confirmation_code'] == str(
-                user.confirmation_code
+            user.confirmation_code
         ):
             return Response(
                 f'token: {get_tokens_for_user(user)}',
@@ -160,17 +159,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        serializer.save(author=self.request.user, title_id=title)
+        serializer.save(author=self.request.user, title=title)
 
 
-class CommentsViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentsSerializer
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
-        return review.coments.all()
+        return review.comments.all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, review_id=review)
+        serializer.save(author=self.request.user, review=review)

@@ -78,7 +78,7 @@ class TitleGetSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        return int(rating) if rating else rating
+        return int(rating) if rating else None
 
 
 class TitlePostSerializer(serializers.ModelSerializer):

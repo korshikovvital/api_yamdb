@@ -1,19 +1,33 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return str(refresh.access_token)
 
 
 class User(AbstractUser):
-    USER = 'usr'
-    MODERATOR = 'mdr'
-    ADMIN = 'adm'
+    # прописываем поля отличные от AbstractUser
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=150, blank=True)
+    bio = models.TextField(blank=True)
+    # используем стандартное поле UUID для отправки пользователям
+    # в качестве кода подтверждения. создается автоматически
+    confirmation_code = models.UUIDField(default=uuid.uuid4, editable=False)
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
     ROLES = [
         (USER, 'user'),
         (MODERATOR, 'moderator'),
         (ADMIN, 'admin'),
     ]
-    bio = models.TextField(blank=True)
     role = models.CharField(
-        max_length=3,
+        max_length=10,
         choices=ROLES,
         default=USER,
     )
@@ -52,7 +66,6 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.TextField(verbose_name='Название')
     year = models.IntegerField(verbose_name='Год выхода')
-    rating = models.IntegerField(default=None, blank=True, null=True)
     description = models.TextField(verbose_name='Описание', blank=True)
     category = models.ForeignKey(
         Category,
@@ -81,19 +94,19 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
     SCORE = [
-        (i, i) for i in range(11)
+        (i, i) for i in range(1, 11)
     ]
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Произведение'
     )
-    text = models.TextField()
+    text = models.TextField(verbose_name='Текст отзыва')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='author',
+        related_name='reviews',
         verbose_name='Автор'
     )
     score = models.IntegerField(
@@ -106,21 +119,21 @@ class Review(models.Model):
     )
 
     def __str__(self):
-        return self.text
+        return self.text[:15]
 
 
-class Comments(models.Model):
-    review_id = models.ForeignKey(
+class Comment(models.Model):
+    review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='coments',
+        related_name='comments',
         verbose_name='Отзыв'
     )
     text = models.TextField()
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='coments',
+        related_name='comments',
         verbose_name='Автор'
     )
     pub_date = models.DateTimeField(
@@ -129,4 +142,4 @@ class Comments(models.Model):
     )
 
     def __str__(self):
-        return self.text
+        return self.text[:15]

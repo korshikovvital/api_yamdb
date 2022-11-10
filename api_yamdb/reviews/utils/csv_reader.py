@@ -3,12 +3,6 @@ import os
 
 from django.conf import settings
 
-BASE_DIR = os.path.dirname(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.abspath(__file__))))
-STATICFILES_DIR = os.path.join(os.path.join(BASE_DIR, 'static/'), 'data')
-
 
 def read_csv(filename):
     data = []

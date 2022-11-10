@@ -99,6 +99,8 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
+DATAFILES_DIR = os.path.join(STATICFILES_DIRS[0], 'data/')
+
 AUTH_USER_MODEL = 'reviews.User'
 
 REST_FRAMEWORK = {

@@ -134,7 +134,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     ).all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
-    permission_classes = (SafeMethods | IsAdmin,)   # работает
+    permission_classes = (SafeMethods | IsAdmin,)
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
@@ -144,10 +144,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    # permission_classes = (OwnerOrReadOnly,)     # работает
-    # permission_classes = (IsAdmin | IsModer,) # работает
-    permission_classes = (ReviewsComments,)    # не работает
-    # дает юзеру править чужое
+    permission_classes = (ReviewsComments,)
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')

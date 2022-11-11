@@ -9,7 +9,7 @@ from reviews.models import (Category, Genre, Review, Title, User,
                             get_tokens_for_user)
 
 from .filters import TitleFilter
-from .permissions import IsAdmin, IsModer, OwnerOrReadOnly
+from .permissions import IsAdmin, SafeMethods, ReviewsComments
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserByAdminSerializer, CreateUserSerializer,
                           FullUserSerializer, GenreSerializer, JWTSerializer,
@@ -116,6 +116,7 @@ class CategoryViewSet(ListCreateDestroyModelViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    permission_classes = (SafeMethods | IsAdmin,)
 
 
 class GenreViewSet(ListCreateDestroyModelViewSet):
@@ -124,6 +125,7 @@ class GenreViewSet(ListCreateDestroyModelViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    permission_classes = (SafeMethods | IsAdmin,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -132,6 +134,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     ).all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+    permission_classes = (SafeMethods | IsAdmin,)
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
@@ -139,18 +142,9 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitlePostSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """Вьюсет для пользователей."""
-    queryset = User.objects.all()
-    serializer_class = FullUserSerializer
-    permission_classes = (IsAdmin,)
-    # поле для поиска отдельных экземпляров модели, по умолчанию "pk",
-    # но нам нужно, чтобы в урлах был username /users/{username}/
-    lookup_field = 'username'
-
-
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = (ReviewsComments,)
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
@@ -164,6 +158,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (ReviewsComments,)
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
@@ -173,3 +168,13 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """Вьюсет для пользователей."""
+    queryset = User.objects.all()
+    serializer_class = FullUserSerializer
+    permission_classes = (IsAdmin,)
+    # поле для поиска отдельных экземпляров модели, по умолчанию "pk",
+    # но нам нужно, чтобы в урлах был username /users/{username}/
+    lookup_field = 'username'

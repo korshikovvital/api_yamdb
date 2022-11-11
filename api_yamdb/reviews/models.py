@@ -32,6 +32,11 @@ class User(AbstractUser):
         default=USER,
     )
 
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
 
 class Category(models.Model):
     name = models.CharField(verbose_name='Название', max_length=256)
@@ -118,15 +123,18 @@ class Review(models.Model):
         verbose_name='Дата публикации'
     )
 
-    def __str__(self):
-        return self.text[:15]
-
     class Meta:
+        ordering = ['id']
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'title'],
                 name='unique review')
         ]
+
+    def __str__(self):
+        return self.text[:15]
 
 
 class Comment(models.Model):
@@ -147,6 +155,11 @@ class Comment(models.Model):
         auto_now_add=True,
         verbose_name='Дата публикации'
     )
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.text[:15]

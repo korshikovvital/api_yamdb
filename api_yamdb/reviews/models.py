@@ -12,12 +12,20 @@ def get_tokens_for_user(user):
 
 class User(AbstractUser):
     # прописываем поля отличные от AbstractUser
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=150, blank=True)
-    bio = models.TextField(blank=True)
+    email = models.EmailField(unique=True, verbose_name='E-mail')
+    first_name = models.CharField(
+        max_length=150,
+        blank=True,
+        verbose_name='Имя',
+    )
+    bio = models.TextField(blank=True, verbose_name='Биография')
     # используем стандартное поле UUID для отправки пользователям
     # в качестве кода подтверждения. создается автоматически
-    confirmation_code = models.UUIDField(default=uuid.uuid4, editable=False)
+    confirmation_code = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='Код подтверждения',
+    )
     USER = 'user'
     MODERATOR = 'moderator'
     ADMIN = 'admin'
@@ -27,10 +35,19 @@ class User(AbstractUser):
         (ADMIN, 'admin'),
     ]
     role = models.CharField(
-        max_length=10,
+        max_length=30,
         choices=ROLES,
         default=USER,
+        verbose_name='Роль',
     )
+
+    @property
+    def is_admin(self):
+        return self.is_superuser or self.is_staff or self.role == 'admin'
+
+    @property
+    def is_moderator(self):
+        return self.role == 'moderator'
 
     class Meta:
         ordering = ['id']

@@ -106,6 +106,21 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
 
+    def validate(self, data):
+        title_id = self.context['view'].kwargs.get('title_id')
+        user = self.context['request'].user
+        if self.context['request'].method == 'PATCH':
+            return data
+        is_review_exists = Review.objects.filter(title=title_id,
+                                                 author=user).exists()
+        if is_review_exists:
+            raise serializers.ValidationError('Вы уже оставили отзыв.')
+        return data
+
+
+
+
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(

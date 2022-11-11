@@ -5,11 +5,12 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
 from reviews.models import (Category, Genre, Review, Title, User,
                             get_tokens_for_user)
 
 from .filters import TitleFilter
-from .permissions import IsAdmin, SafeMethods, ReviewsComments
+from .permissions import IsAdmin, ReviewsComments, SafeMethods
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserByAdminSerializer, CreateUserSerializer,
                           FullUserSerializer, GenreSerializer, JWTSerializer,

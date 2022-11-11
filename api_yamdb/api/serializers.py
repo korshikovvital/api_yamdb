@@ -1,5 +1,6 @@
 from django.db.models import Avg
 from rest_framework import serializers
+
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -116,10 +117,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         if is_review_exists:
             raise serializers.ValidationError('Вы уже оставили отзыв.')
         return data
-
-
-
-
 
 
 class CommentSerializer(serializers.ModelSerializer):

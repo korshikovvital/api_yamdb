@@ -13,6 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class CreateUserByAdminSerializer(serializers.Serializer):
     """Сериализатор получения пользователем кода подтверждения,
     Если его ранее создал администратор. Запись в БД не требуется."""
+
     username = serializers.CharField(max_length=256)
     email = serializers.EmailField()
 
@@ -48,6 +49,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class JWTSerializer(serializers.Serializer):
     """Сериализатор для получения JWT."""
+
     username = serializers.CharField(max_length=256)
     confirmation_code = serializers.CharField(max_length=256)
 

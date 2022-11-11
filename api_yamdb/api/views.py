@@ -173,6 +173,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет для пользователей."""
+
     queryset = User.objects.all()
     serializer_class = FullUserSerializer
     permission_classes = (IsAdmin,)

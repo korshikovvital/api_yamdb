@@ -25,6 +25,13 @@ class CreateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email')
 
+    def validate_username(self, value):
+        # проверка на зарезервированное имя 'me'
+        if value == 'me':
+            raise serializers.ValidationError(
+                "Использовать имя 'me' в качестве username запрещено.")
+        return value
+
 
 class FullUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователей для админа, все поля."""

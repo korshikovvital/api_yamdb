@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -25,8 +27,8 @@ def create_user(request):
     Возможны 2 варианта: пользователь создается сам впервые,
     и пользователь уже создан админом, необходимо получить JWT."""
     # проверяем на существование записи в БД по емэйл
-    if User.objects.filter(email=request.data.get('email')).exists():
-        user = User.objects.get(email=request.data.get('email'))
+    user = User.objects.filter(email=request.data.get('email')).first()
+    if user:
         # если username из запроса соответсвует записи в базе по емэйл,
         # выбираем сериалайзер без привязки к модели User.
         # то есть ничего записывать в БД не будем
@@ -41,24 +43,18 @@ def create_user(request):
         # если email в базе не найден, стандартный сериалайзер
         serializer = CreateUserSerializer(data=request.data)
     if serializer.is_valid():
-        # проверка на зарезервированное имя 'me'
-        if serializer.validated_data['username'] == 'me':
-            return Response(
-                "Использовать имя 'me' в качестве username запрещено.",
-                status=status.HTTP_400_BAD_REQUEST
-            )
         # проверяем, какой используется сериалайзер
         # и, при необходимости, записываем в БД
         if isinstance(serializer, CreateUserSerializer):
             serializer.save()
         user = User.objects.get(email=serializer.data['email'])
-        conf = str(user.confirmation_code)
+        conf = default_token_generator.make_token(user)
 
         # отправка письма
         send_mail(
             'Registration on the YAMDB',  # тема
             conf,  # текст
-            'YAMDB',  # от кого
+            settings.SENDER_EMAIL,  # от кого
             [user.email],  # кому
             fail_silently=False,  # «молчать ли об ошибках»
         )
@@ -80,9 +76,8 @@ def send_jwt(request):
             )
         user = User.objects.get(username=serializer.data['username'])
         # проверка кода
-        if serializer.data['confirmation_code'] == str(
-            user.confirmation_code
-        ):
+        if serializer.data['confirmation_code'] == (
+                default_token_generator.make_token(user)):
             return Response(
                 f'token: {get_tokens_for_user(user)}',
                 status=status.HTTP_200_OK

@@ -69,7 +69,7 @@ def send_jwt(request):
     serializer = JWTSerializer(data=request.data)
     if serializer.is_valid():
         if not User.objects.filter(
-           username=serializer.data.get('username')
+            username=serializer.data.get('username')
         ).exists():
             return Response(
                 'Пользователь не найден',

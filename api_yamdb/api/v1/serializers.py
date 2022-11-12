@@ -13,12 +13,14 @@ class CategorySerializer(serializers.ModelSerializer):
 class CreateUserByAdminSerializer(serializers.Serializer):
     """Сериализатор получения пользователем кода подтверждения,
     Если его ранее создал администратор. Запись в БД не требуется."""
+
     username = serializers.CharField(max_length=256)
     email = serializers.EmailField()
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
     """Сериализатор для самостоятельного создания пользователя."""
+
     username = serializers.CharField(
         max_length=256,
         validators=[UniqueValidator(queryset=User.objects.all())],

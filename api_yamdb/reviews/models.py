@@ -109,6 +109,9 @@ class GenreTitle(models.Model):
     )
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.genre.name
+
 
 class Review(models.Model):
     SCORE = [

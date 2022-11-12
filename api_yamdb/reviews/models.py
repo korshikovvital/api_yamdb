@@ -70,7 +70,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.TextField(verbose_name='Название')
-    year = models.IntegerField(verbose_name='Год выхода')
+    year = models.IntegerField(verbose_name='Год выхода', db_index=True)
     description = models.TextField(verbose_name='Описание', blank=True)
     category = models.ForeignKey(
         Category,

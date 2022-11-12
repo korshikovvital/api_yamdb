@@ -69,7 +69,7 @@ def send_jwt(request):
     serializer = JWTSerializer(data=request.data)
     if serializer.is_valid():
         if not User.objects.filter(
-            username=serializer.data.get('username')
+                username=serializer.data.get('username')
         ).exists():
             return Response(
                 'Пользователь не найден',
@@ -146,7 +146,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
         new_queryset = get_object_or_404(Title, id=title_id)
-        return new_queryset.reviews.all()
+        return new_queryset.reviews.select_related('title').all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -160,7 +160,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
-        return review.comments.all()
+        return review.comments.select_related('review').all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))

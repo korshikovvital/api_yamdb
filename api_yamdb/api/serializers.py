@@ -1,4 +1,3 @@
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -31,6 +30,13 @@ class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email')
+
+    def validate_username(self, value):
+        # проверка на зарезервированное имя 'me'
+        if value == 'me':
+            raise serializers.ValidationError(
+                "Использовать имя 'me' в качестве username запрещено.")
+        return value
 
 
 class FullUserSerializer(serializers.ModelSerializer):
@@ -80,15 +86,11 @@ class PatchUserSerializer(serializers.ModelSerializer):
 class TitleGetSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = '__all__'
-
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        return int(rating) if rating else None
 
 
 class TitlePostSerializer(serializers.ModelSerializer):

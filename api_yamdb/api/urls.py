@@ -21,8 +21,12 @@ router_v1.register(
     basename='comments')
 
 urlpatterns = [
-    path('v1/auth/signup/', create_user, name='create_user'),
-    path('v1/auth/token/', send_jwt, name='send_jwt'),
-    path('v1/users/me/', self_patch_user, name='self_patch_user'),
-    path('v1/', include(router_v1.urls)),
+    path('v1/', include([
+        path('auth/', include([
+            path('signup/', create_user, name='create_user'),
+            path('token/', send_jwt, name='send_jwt'),
+        ])),
+        path('users/me/', self_patch_user, name='self_patch_user'),
+        path('', include(router_v1.urls)),
+    ])),
 ]

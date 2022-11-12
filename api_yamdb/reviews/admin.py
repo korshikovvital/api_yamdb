@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from .models import Category, Genre, GenreTitle, Title, User
+from .models import (Category, Genre,
+                     GenreTitle, Title,
+                     User,Review,Comment)
 
 
 @admin.register(Category)
@@ -41,3 +43,17 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('role',)
     list_editable = (
         'email', 'role', 'first_name', 'last_name', 'bio')
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display =('id','title','text','author','score','pub_date')
+    search_fields = ('author',)
+    list_editable = ('title',)
+    list_filter =('pub_date',)
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display =('review','text','author','pub_date')
+    search_fields = ('review','author')
+    list_filter =('pub_date',)

@@ -56,5 +56,5 @@ class ReviewAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('review', 'text', 'author', 'pub_date')
-    search_fields = ('review', 'author')
+    search_fields = ('author',)
     list_filter = ('pub_date',)

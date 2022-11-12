@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,12 +10,13 @@ def get_tokens_for_user(user):
 
 class User(AbstractUser):
     # прописываем поля отличные от AbstractUser
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=150, blank=True)
-    bio = models.TextField(blank=True)
-    # используем стандартное поле UUID для отправки пользователям
-    # в качестве кода подтверждения. создается автоматически
-    confirmation_code = models.UUIDField(default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True, verbose_name='E-mail')
+    first_name = models.CharField(
+        max_length=150,
+        blank=True,
+        verbose_name='Имя',
+    )
+    bio = models.TextField(blank=True, verbose_name='Биография')
     USER = 'user'
     MODERATOR = 'moderator'
     ADMIN = 'admin'
@@ -27,10 +26,19 @@ class User(AbstractUser):
         (ADMIN, 'admin'),
     ]
     role = models.CharField(
-        max_length=10,
+        max_length=30,
         choices=ROLES,
         default=USER,
+        verbose_name='Роль',
     )
+
+    @property
+    def is_admin(self):
+        return self.is_superuser or self.is_staff or self.role == self.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
 
     class Meta:
         ordering = ['id']
@@ -70,7 +78,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.TextField(verbose_name='Название')
-    year = models.IntegerField(verbose_name='Год выхода')
+    year = models.IntegerField(verbose_name='Год выхода', db_index=True)
     description = models.TextField(verbose_name='Описание', blank=True)
     category = models.ForeignKey(
         Category,

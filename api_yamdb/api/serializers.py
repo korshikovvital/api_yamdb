@@ -1,5 +1,5 @@
-from django.db.models import Avg
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -13,17 +13,30 @@ class CategorySerializer(serializers.ModelSerializer):
 class CreateUserByAdminSerializer(serializers.Serializer):
     """Сериализатор получения пользователем кода подтверждения,
     Если его ранее создал администратор. Запись в БД не требуется."""
-
     username = serializers.CharField(max_length=256)
     email = serializers.EmailField()
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
     """Сериализатор для самостоятельного создания пользователя."""
+    username = serializers.CharField(
+        max_length=256,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
 
     class Meta:
         model = User
         fields = ('username', 'email')
+
+    def validate_username(self, value):
+        # проверка на зарезервированное имя 'me'
+        if value == 'me':
+            raise serializers.ValidationError(
+                "Использовать имя 'me' в качестве username запрещено.")
+        return value
 
 
 class FullUserSerializer(serializers.ModelSerializer):
@@ -37,7 +50,7 @@ class FullUserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'bio',
-            'role'
+            'role',
         )
 
 
@@ -73,15 +86,11 @@ class PatchUserSerializer(serializers.ModelSerializer):
 class TitleGetSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = '__all__'
-
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        return int(rating) if rating else None
 
 
 class TitlePostSerializer(serializers.ModelSerializer):

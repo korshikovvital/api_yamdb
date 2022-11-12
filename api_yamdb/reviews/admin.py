@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Genre, GenreTitle, Title
+from .models import Category, Genre, GenreTitle, Title, User
 
 
 @admin.register(Category)
@@ -31,3 +31,13 @@ class TitleAdmin(admin.ModelAdmin):
     inlines = (GenreTitleInline,)
 
     empty_value_display = '-пусто-'
+
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        'username', 'email', 'role', 'first_name', 'last_name', 'bio')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    list_filter = ('role',)
+    list_editable = (
+        'email', 'role', 'first_name', 'last_name', 'bio')

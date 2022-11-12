@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,13 +17,6 @@ class User(AbstractUser):
         verbose_name='Имя',
     )
     bio = models.TextField(blank=True, verbose_name='Биография')
-    # используем стандартное поле UUID для отправки пользователям
-    # в качестве кода подтверждения. создается автоматически
-    confirmation_code = models.UUIDField(
-        default=uuid.uuid4,
-        editable=False,
-        verbose_name='Код подтверждения',
-    )
     USER = 'user'
     MODERATOR = 'moderator'
     ADMIN = 'admin'
@@ -43,11 +34,11 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.is_superuser or self.is_staff or self.role == 'admin'
+        return self.is_superuser or self.is_staff or self.role == self.ADMIN
 
     @property
     def is_moderator(self):
-        return self.role == 'moderator'
+        return self.role == self.MODERATOR
 
     class Meta:
         ordering = ['id']
